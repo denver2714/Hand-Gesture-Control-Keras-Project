@@ -54,3 +54,47 @@ def draw_hand_landmarks(frame, hand_landmarks_list):
     for lm in hand_landmarks_list:
         cx, cy = int(lm.x * w), int(lm.y * h)
         cv2.circle(frame, (cx, cy), 4, (0, 255, 0), -1)
+
+
+
+
+def _is_finger_up(landmarks, tip_id, pip_id):
+    return landmarks[tip_id].y < landmarks[pip_id].y
+
+def _is_thumb_up(landmarks):
+    return abs(landmarks[4].x - landmarks[0].x) > abs(landmarks[3].x - landmarks[0].x)
+
+
+def detect_gesture_simple(hand_landmarks_list):
+
+    lm = hand_landmarks_list
+
+    thumb_up  = _is_thumb_up(lm)
+    index_up  = _is_finger_up(lm, 8, 6)
+    middle_up = _is_finger_up(lm, 12, 10)
+    ring_up   = _is_finger_up(lm, 16, 14)
+    pinky_up  = _is_finger_up(lm, 20, 18)
+
+    fingers_up = [thumb_up, index_up, middle_up, ring_up, pinky_up]
+    count = sum(fingers_up)
+
+    pinch_dist = calculate_distance(lm[4], lm[8])
+    if pinch_dist < 0.05:
+        return 'pinch'
+
+    if count >= 4:
+        return 'open_hand'
+    if count <= 1 and not index_up:
+        return 'fist'
+    if index_up and not middle_up and not ring_up and not pinky_up:
+        return 'point'
+    if index_up and middle_up and not ring_up and not pinky_up:
+        return 'peace'
+
+    # Fallback
+    if count <= 1:
+        return 'fist'
+    return 'open_hand'
+
+
+GESTURE_LABELS = ['open_hand', 'fist', 'point', 'pinch', 'peace']
