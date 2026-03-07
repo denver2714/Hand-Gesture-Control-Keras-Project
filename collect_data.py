@@ -85,7 +85,16 @@ def main():
                     print(f"Collected {len(samples)} samples for '{gesture}'")
                     break
             
-    
+
+            if samples:
+                path = os.path.join(DATA_DIR, f"{gesture}.csv")
+                with open(path, 'w', newline='') as f:
+                    writer = csv.writer(f)
+                    for s in samples:
+                        writer.writerow(s.tolist())
+                print(f"Saved -> {path}")
+
+
 
 
 if __name__ == '__main__':
