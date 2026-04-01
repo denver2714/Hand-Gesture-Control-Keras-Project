@@ -1,6 +1,3 @@
----
-
-⚠️⚠️ STILL IN DEVELOPMENT ⚠️⚠️ 
 
 ---
 
