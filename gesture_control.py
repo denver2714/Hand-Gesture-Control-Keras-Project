@@ -217,6 +217,7 @@ def main():
     MODE_SWITCH_COOLDOWN = 2.0
     gesture_counter = {}       # tracks consecutive frames per gesture
     last_raw_gesture = 'none'
+    gesture_start_time = None  # when current gesture candidate first appeared
 
     print("Gesture Control started!")
     print("   Press Q to quit | C to clear canvas | M to cycle mode | D to change colour")
@@ -271,6 +272,7 @@ def main():
                     gesture_counter[gesture] = gesture_counter.get(gesture, 0) + 1
                 else:
                     gesture_counter = {gesture: 1}
+                    gesture_start_time = curr_time
                 last_raw_gesture = gesture
 
                 stable_count = gesture_counter.get(gesture, 0)
@@ -280,11 +282,12 @@ def main():
                         and stable_count >= GESTURE_STABLE_FRAMES):
                     new_mode = gesture_to_mode(gesture, mode)
                     if new_mode != mode:
+                        elapsed = curr_time - gesture_start_time if gesture_start_time else 0.0
                         mode = new_mode
                         last_mode_switch = curr_time
                         prev_draw_pt = None
                         gesture_counter = {}
-                        print(f"Mode → {mode}")
+                        print(f"Mode → {mode}  |  gesture '{gesture}' held {elapsed:.2f}s to register")
 
                 lm = hand_lm  # list of NormalizedLandmark
 
